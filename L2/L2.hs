@@ -27,5 +27,5 @@ seqSequence (MolSeq {molSequence = x}) = x
 seqLength :: MolSeq -> Int
 seqLength x = length (seqSequence x)
 
--- seqDistance :: MolSeq -> MolSeq -> Double
+seqDistance :: MolSeq -> MolSeq -> Double
 
