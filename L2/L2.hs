@@ -6,7 +6,7 @@ data MolSeq = MolSeq { name :: String
                      } --deriving (Show)
 
               
--- filtrera ACTG, True om tom lista återstår
+-- filtrera ACTG, returnera True om tom lista återstår
 isDNA :: String -> Bool
 isDNA x 
   | filter (\s -> not $ (s == 'A' || 
@@ -27,6 +27,5 @@ seqSequence (MolSeq {molSequence = x}) = x
 seqLength :: MolSeq -> Int
 seqLength x = length (seqSequence x)
 
--- test
 seqDistance :: MolSeq -> MolSeq -> Double
 
