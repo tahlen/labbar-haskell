@@ -9,6 +9,7 @@ data MolSeq = MolSeq { name :: String
 
               
 -- filtrera ACTG, returnera True om tom lista återstår
+-- förutsätter att ett protein inte endast består av ACTG
 isDNA :: String -> Bool
 isDNA x 
   | filter (\char -> not $ (   char == 'A' 
@@ -61,6 +62,6 @@ compareProtein x = (-19/20)*log(1-(20*x)/19)
 -- jämför två sekvenser
 seqDistance :: MolSeq -> MolSeq -> Double
 seqDistance seq1 seq2 
-  | (seqType seq1) && (seqType seq2)             = compareDNA (normHamm seq1 seq2)
+  | (seqType seq1) && (seqType seq2) = compareDNA (normHamm seq1 seq2)
   | (not $ seqType seq1) && (not $ seqType seq2) = compareProtein (normHamm seq1 seq2)
   | otherwise = error ("Sekvenserna ej av samma typ (endast DNA && DNA eller protein && protein tillåtet)")
