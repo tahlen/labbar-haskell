@@ -3,10 +3,17 @@ module F1 where
 import Data.List
 import Data.Char
 
--- fib x beräknas genom att skapa en lista [0, 1]
--- skicka vidare listan efter addition [a, b] -> [b, a+b]
--- upprepa x-1 tills x=2 och returnera till sist a+b
+-- beräkna efter matematiska definitionen
+-- dålig optimering, tar flera minuter att räkna ut n=40, tidskomplexitet 
+fibShit :: Integer -> Integer
+fibShit 0 = 0
+fibShit 1 = 1
+fibShit n = (fibShit (n-1)) + (fibShit (n-2))
 
+-- fib x beräknas genom att skapa en lista [0, 1]
+-- skicka till hjälpfunktionen fib'
+-- skicka vidare listan rekursivt efter addition [a, b] -> [b, a+b]
+-- upprepa x-1 tills x==2 och returnera till sist a+b
 fib :: Integer -> Integer
 fib 0 = 0
 fib 1 = 1
@@ -44,7 +51,6 @@ karpsravor [] = []
 -- allt som inte är bokstäver blir mellanslag
 -- funktionen words delar upp
 -- medellängd = (antal bokstäver) / (antal ord)
-
 medellangd' x = sum y / fromIntegral (genericLength y)
   where y = map genericLength x
 
@@ -56,7 +62,6 @@ medellangd x = medellangd' (words $ map isAlpha' x)
 -- lista 1: vartannat elem från första elem (1,3,5,7 etc.)
 -- lista 2: vartannat elem från andra elem (2,4,6,8 etc.)
 -- addera första listan och resultatet av skyffla på andra listan
-
 skyffla :: [a] -> [a]
 skyffla [a] = [a]
 skyffla xs = (varannan1 xs) ++ (skyffla (varannan2 xs))
