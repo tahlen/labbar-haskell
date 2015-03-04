@@ -2,11 +2,15 @@ module F2 where
 
 import Data.List
 
-data MolSeq = MolSeq { name        :: String
-                     , molSequence :: String
-                     , dna         :: Bool
-                     } --deriving (Show)
-data Profile = Profile { 
+data MolSeq = MolSeq   { name        :: String
+                       , molSequence :: String
+                       , dna         :: Bool
+                       } --deriving (Show)
+data Profile = Profile { name        :: String
+                       , --M         :: ???
+                       , dna         :: Bool
+                       , sequences   :: Int
+                       }
 
               
 -- filtrera ACTG, returnera True om tom lista återstår
@@ -67,24 +71,24 @@ seqDistance seq1 seq2
   | (not $ seqType seq1) && (not $ seqType seq2) = compareProtein (normHamm seq1 seq2)
   | otherwise = error ("Sekvenserna ej av samma typ (endast DNA && DNA eller protein && protein tillåtet)")
                 
--- nucleotides = "ACGT"
--- aminoacids = sort "ARNDCEQGHILKMFPSTWYVX"
+nucleotides = "ACGT"
+aminoacids = sort "ARNDCEQGHILKMFPSTWYVX"
 
--- makeProfileMatrix :: [MolSeq] -> ???
--- makeProfileMatrix [] = error "Empty_sequence_list"
--- makeProfileMatrix sl = res 
---   where
---     t = seqType (head sl)
---     defaults = 
---       if (t == DNA) then
---         zip nucleotides (replicate (length nucleotides) 0) -- Rad (i) 
---       else
---         zip aminoacids (replicate (length aminoacids) 0)   -- Rad (ii)
---     strs = map seqSequence sl                              -- Rad (iii)
---     tmpl = map (map (\x -> ((head x), (length x))) . group . sort) 
---            (transpose strs)                                -- Rad (iv)
---     equalFst a b = (fst a) == (fst b)
---     res = map sort (map (\l -> unionBy equalFst l defaults) tmpl)
+makeProfileMatrix :: [MolSeq] -> ???
+makeProfileMatrix [] = error "Empty_sequence_list"
+makeProfileMatrix sl = res 
+  where
+    t = seqType (head sl)
+    defaults = 
+      if t then
+        zip nucleotides (replicate (length nucleotides) 0) -- Rad (i) 
+      else
+        zip aminoacids (replicate (length aminoacids) 0)   -- Rad (ii)
+    strs = map seqSequence sl                              -- Rad (iii)
+    tmpl = map (map (\x -> ((head x), (length x))) . group . sort) 
+           (transpose strs)                                -- Rad (iv)
+    equalFst a b = (fst a) == (fst b)
+    res = map sort (map (\l -> unionBy equalFst l defaults) tmpl)
 
 
 -- kodskelett
