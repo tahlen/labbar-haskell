@@ -7,7 +7,7 @@ data MolSeq = MolSeq   { msName        :: String
                        , msDNA         :: Bool
                        } deriving (Show)
 data Profile = Profile { pName	       :: String
-                       , pMatrix        :: [[(Char, Int)]]
+                       , pMatrix       :: [[(Char, Int)]]
                        , pDNA          :: Bool
                        , sequences     :: Int
                        } deriving (Show)
@@ -112,9 +112,14 @@ molseqs2profile name molseqs = Profile { pName	   = name
 
 profileFrequency :: Profile -> Int -> Char -> Double
 profileFrequency profile i c = (fromIntegral . snd . head . filter f $ (matrix !! i)) / seqs
-		where
-		    f = (\x -> fst x == c)
-		    matrix = profileMatrix profile
-	    	    seqs = fromIntegral (profileSequences profile)
+	where
+	    f = (\x -> fst x == c)
+	    matrix = profileMatrix profile
+	    seqs = fromIntegral (profileSequences profile)
 
 profileDistance :: Profile -> Profile -> Double
+profileDistance m1 m2 = profileDistance' m1 m2 (head nucleotides)
+profileDistance' m1 m2 j = sum [abs ((profileFrequency m1 i j) - (profileFrequency m2 i j)) | i <- [1..10]]
+
+
+--profileDistance m1 m2 = sum [abs ((profileFrequency m1 i j) - (profileFrequency m2 i j))] | (i, j) <- zip nucleotides [1..(length profileMatrix m1)]

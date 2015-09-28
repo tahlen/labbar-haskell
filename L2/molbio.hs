@@ -110,7 +110,7 @@ profileFreqTest1 = profileFrequency (head profiles) 17 'V'
 profileFreqTest2 = profileFrequency (head profiles) 42 'F'
 
 -- Should return 171.14285714...
---profileDistTest = snabbtest profileDistance profiles
+profileDistTest = snabbtest profileDistance profiles
 
 
 -- Should produce the following matrix (values rounded):
