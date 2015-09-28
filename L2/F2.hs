@@ -2,15 +2,15 @@ module F2 where
 
 import Data.List
 
-data MolSeq = MolSeq   { name        :: String
-                       , molSequence :: String
-                       , dna         :: Bool
-                       } --deriving (Show)
-data Profile = Profile { name        :: String
-                       , --M         :: ???
-                       , dna         :: Bool
-                       , sequences   :: Int
-                       }
+data MolSeq = MolSeq   { msName        :: String
+                       , molSequence   :: String
+                       , msDNA         :: Bool
+                       } deriving (Show)
+data Profile = Profile { pName	       :: String
+                       , pMatrix        :: [[(Char, Int)]]
+                       , pDNA          :: Bool
+                       , sequences     :: Int
+                       } deriving (Show)
 
               
 -- filtrera ACTG, returnera True om tom lista återstår
@@ -24,13 +24,13 @@ isDNA x
   | otherwise = False
 
 string2seq :: String -> String -> MolSeq
-string2seq name seq = MolSeq { name = name
+string2seq name seq = MolSeq { msName = name
                              , molSequence = seq
-                             , dna = (isDNA seq)
+                             , msDNA = (isDNA seq)
                              }
 
 seqName :: MolSeq -> String
-seqName (MolSeq {name = x}) = x
+seqName (MolSeq {msName = x}) = x
 
 seqSequence :: MolSeq -> String
 seqSequence (MolSeq {molSequence = x}) = x
@@ -40,7 +40,7 @@ seqLength x = length (seqSequence x)
 
 -- returnerar True om DNA, annars False
 seqType :: MolSeq -> Bool
-seqType (MolSeq {dna = x}) = x
+seqType (MolSeq {msDNA = x}) = x
 
 normHamm' "" "" diff = diff
 normHamm' (x:xs) (y:ys) diff = if x /= y 
@@ -74,40 +74,47 @@ seqDistance seq1 seq2
 nucleotides = "ACGT"
 aminoacids = sort "ARNDCEQGHILKMFPSTWYVX"
 
-makeProfileMatrix :: [MolSeq] -> ???
+makeProfileMatrix :: [MolSeq] -> [[(Char, Int)]]
 makeProfileMatrix [] = error "Empty_sequence_list"
 makeProfileMatrix sl = res 
   where
     t = seqType (head sl)
     defaults = 
-      if t then
-        zip nucleotides (replicate (length nucleotides) 0) -- Rad (i) 
-      else
-        zip aminoacids (replicate (length aminoacids) 0)   -- Rad (ii)
+      if t then -- om DNA
+        zip nucleotides (replicate (length nucleotides) 0) -- skapa lista med tupler för varje nukleotid 
+      else  	-- om protein
+        zip aminoacids (replicate (length aminoacids) 0)   -- skapa lista med tupler för varje aminosyra
     strs = map seqSequence sl                              -- Rad (iii)
     tmpl = map (map (\x -> ((head x), (length x))) . group . sort) 
            (transpose strs)                                -- Rad (iv)
     equalFst a b = (fst a) == (fst b)
     res = map sort (map (\l -> unionBy equalFst l defaults) tmpl)
 
+profileName :: Profile -> String
+profileName (Profile {pName = x}) = x
 
--- kodskelett
+profileMatrix :: Profile -> [[(Char, Int)]]
+profileMatrix (Profile {pMatrix = x}) = x
 
--- nucleotides = "ACGT"
--- aminoacids = sort "ARNDCEQGHILKMFPSTWYVX"
+profileSequences :: Profile -> Int
+profileSequences (Profile {sequences = x}) = x
 
--- makeProfileMatrix :: [MolSeq] -> ???
--- makeProfileMatrix [] = error "Empty_sequence_list"
--- makeProfileMatrix sl = res 
---   where
---     t = seqType (head sl)
---     defaults = 
---       if (t == DNA) then
---         zip nucleotides (replicate (length nucleotides) 0) -- Rad (i) 
---       else
---         zip aminoacids (replicate (length aminoacids) 0)   -- Rad (ii)
---     strs = map seqSequence sl                              -- Rad (iii)
---     tmpl = map (map (\x -> ((head x), (length x))) . group . sort) 
---            (transpose strs)                                -- Rad (iv)
---     equalFst a b = (fst a) == (fst b)
---     res = map sort (map (\l -> unionBy equalFst l defaults) tmpl)
+molseqs2profile :: String -> [MolSeq] -> Profile
+molseqs2profile name molseqs = Profile { pName	   = name
+		     	       	       , pMatrix   = matrix
+				       , pDNA	   = t
+				       , sequences = seqs
+				       }
+      	where 
+      	    matrix = makeProfileMatrix molseqs
+      	    t      = seqType (head molseqs)
+      	    seqs   = length molseqs
+
+profileFrequency :: Profile -> Int -> Char -> Double
+profileFrequency profile i c = (fromIntegral . snd . head . filter f $ (matrix !! i)) / seqs
+		where
+		    f = (\x -> fst x == c)
+		    matrix = profileMatrix profile
+	    	    seqs = fromIntegral (profileSequences profile)
+
+profileDistance :: Profile -> Profile -> Double
