@@ -2,16 +2,26 @@ module F2 where
 
 import Data.List
 
+class Evol a where
+  distance :: a -> a -> Double
+  name :: a -> String          
+  
 data MolSeq = MolSeq   { msName        :: String
                        , molSequence   :: String
                        , msDNA         :: Bool
                        } deriving (Show)
+
+  
 data Profile = Profile { pName	       :: String
                        , pMatrix       :: [[(Char, Int)]]
                        , pDNA          :: Bool
                        , sequences     :: Int
                        } deriving (Show)
 
+instance Evol MolSeq where
+ distance a b = seqDistance a b
+instance Evol Profile where
+ distance a b = profileDistance a b
               
 -- filtrera ACTG, returnera True om tom lista återstår
 -- förutsätter att ett protein inte endast består av ACTG
@@ -111,15 +121,13 @@ molseqs2profile name molseqs = Profile { pName	   = name
       	    seqs   = length molseqs
 
 profileFrequency :: Profile -> Int -> Char -> Double
-profileFrequency profile i c = (fromIntegral . snd . head . filter f $ (matrix !! i)) / seqs
+profileFrequency p i c = (fromIntegral . snd . head . filter f $ (matrix !! i)) / seqs
 	where
 	    f = (\x -> fst x == c)
-	    matrix = profileMatrix profile
-	    seqs = fromIntegral (profileSequences profile)
+	    matrix = profileMatrix p
+	    seqs = fromIntegral (profileSequences p)
 
 profileDistance :: Profile -> Profile -> Double
-profileDistance m1 m2 = profileDistance' m1 m2 (head nucleotides)
-profileDistance' m1 m2 j = sum [abs ((profileFrequency m1 i j) - (profileFrequency m2 i j)) | i <- [1..10]]
+profileDistance m1 m2 = sum [profileDistance' m1 m2 j | j <- aminoacids]
+profileDistance' m1 m2 j = sum [abs ((profileFrequency m1 i j) - (profileFrequency m2 i j)) | i <- [0..(length (profileMatrix m1))-1]]
 
-
---profileDistance m1 m2 = sum [abs ((profileFrequency m1 i j) - (profileFrequency m2 i j))] | (i, j) <- zip nucleotides [1..(length profileMatrix m1)]
